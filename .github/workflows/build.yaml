@@ -1,4 +1,4 @@
-name: "Create cluster using KinD"
+name: "Create clusters"
 on: [push]
 
 jobs:
@@ -18,13 +18,6 @@ jobs:
         with:
           workloads: "" # all
           namespace: "kube-system" # default
-          timeout: 300
-          max-restarts: 5
-      - name: Await cluster up and running
-        uses: jupyterhub/action-k8s-await-workloads@v1
-        with:
-          workloads: "" # all
-          namespace: "kube-public" # default
           timeout: 300
           max-restarts: 5
       - name: Testing
@@ -53,13 +46,6 @@ jobs:
         with:
           workloads: "" # all
           namespace: "kube-system" # default
-          timeout: 300
-          max-restarts: 5
-      - name: Await cluster up and running
-        uses: jupyterhub/action-k8s-await-workloads@v1
-        with:
-          workloads: "" # all
-          namespace: "kube-public" # default
           timeout: 300
           max-restarts: 5
       - name: Testing
