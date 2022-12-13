@@ -1,27 +1,7 @@
 name: "Create cluster using KinD"
-on: [pull_request, push]
+on: [push]
 
 jobs:
-  # kind:
-  #   name: Kind-Kubernetes Cluster interaction
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@master
-  #     - uses: engineerd/setup-kind@v0.5.0
-  #     - name: Await workload
-  #       uses: jupyterhub/action-k8s-await-workloads@v1
-  #       with:
-  #         workloads: "" # all
-  #         namespace: "" # default
-  #         timeout: 60
-  #         max-restarts: 0
-  #     - name: Testing
-  #       run: |
-  #         kubectl cluster-info
-  #         kubectl get pods -n kube-system
-  #         echo "current-context:" $(kubectl config current-context)
-  #         echo "environment-kubeconfig:" ${KUBECONFIG}
-
   k3s:
     name: K3S-Kubernetes Cluster interaction
     runs-on: ubuntu-latest
@@ -30,8 +10,8 @@ jobs:
       - uses: nolar/setup-k3d-k3s@v1
         with:
           version: v1.21  # E.g.: v1.21, v1.21.2, v1.21.2+k3s1
-          metrics-enabled: false
-          traefik-enabled: false
+          # metrics-enabled: false
+          # traefik-enabled: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Await cluster up and running
         uses: jupyterhub/action-k8s-await-workloads@v1
@@ -43,6 +23,7 @@ jobs:
       - name: Testing
         run: |
           kubectl cluster-info
+          kubectl get namespace
           kubectl get pods -n kube-system
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
@@ -69,6 +50,27 @@ jobs:
       - name: Testing
         run: |
           kubectl cluster-info
+          kubectl get namespace
           kubectl get pods -n kube-system
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
+
+  # kind:
+  #   name: Kind-Kubernetes Cluster interaction
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@master
+  #     - uses: engineerd/setup-kind@v0.5.0
+  #     - name: Await workload
+  #       uses: jupyterhub/action-k8s-await-workloads@v1
+  #       with:
+  #         workloads: "" # all
+  #         namespace: "" # default
+  #         timeout: 60
+  #         max-restarts: 0
+  #     - name: Testing
+  #       run: |
+  #         kubectl cluster-info
+  #         kubectl get pods -n kube-system
+  #         echo "current-context:" $(kubectl config current-context)
+  #         echo "environment-kubeconfig:" ${KUBECONFIG}
