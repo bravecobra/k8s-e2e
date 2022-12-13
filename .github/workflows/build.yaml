@@ -18,13 +18,20 @@ jobs:
         with:
           workloads: "" # all
           namespace: "kube-system" # default
-          timeout: 60
-          max-restarts: 0
+          timeout: 300
+          max-restarts: 5
+      - name: Await cluster up and running
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "kube-public" # default
+          timeout: 300
+          max-restarts: 5
       - name: Testing
         run: |
           kubectl cluster-info
           kubectl get namespace
-          kubectl get pods -n kube-system
+          kubectl get pods --all-namespaces
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
 
@@ -45,13 +52,20 @@ jobs:
         with:
           workloads: "" # all
           namespace: "kube-system" # default
-          timeout: 60
-          max-restarts: 0
+          timeout: 300
+          max-restarts: 5
+      - name: Await cluster up and running
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "kube-public" # default
+          timeout: 300
+          max-restarts: 5
       - name: Testing
         run: |
           kubectl cluster-info
           kubectl get namespace
-          kubectl get pods -n kube-system
+          kubectl get pods --all-namespaces
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
 
