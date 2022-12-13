@@ -8,6 +8,13 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - uses: engineerd/setup-kind@v0.5.0
+      - name: Await workload
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "" # default
+          timeout: 60
+          max-restarts: 0
       - name: Testing
         run: |
           kubectl cluster-info
@@ -24,6 +31,13 @@ jobs:
         with:
           version: v1.21  # E.g.: v1.21, v1.21.2, v1.21.2+k3s1
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Await workload
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "" # default
+          timeout: 60
+          max-restarts: 0
       - name: Testing
         run: |
           kubectl cluster-info
@@ -43,6 +57,13 @@ jobs:
           minikube version: 'v1.26.1'
           kubernetes version: 'v1.25.0'
           github token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Await workload
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "" # default
+          timeout: 60
+          max-restarts: 0
       - name: Testing
         run: |
           kubectl cluster-info
