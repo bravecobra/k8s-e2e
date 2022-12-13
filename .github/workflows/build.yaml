@@ -57,22 +57,26 @@ jobs:
           echo "environment-kubeconfig:" ${KUBECONFIG}
           kubectl cluster-info dump
 
-  # kind:
-  #   name: Kind-Kubernetes Cluster interaction
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@master
-  #     - uses: engineerd/setup-kind@v0.5.0
-  #     - name: Await workload
-  #       uses: jupyterhub/action-k8s-await-workloads@v1
-  #       with:
-  #         workloads: "" # all
-  #         namespace: "" # default
-  #         timeout: 60
-  #         max-restarts: 0
-  #     - name: Testing
-  #       run: |
-  #         kubectl cluster-info
-  #         kubectl get pods -n kube-system
-  #         echo "current-context:" $(kubectl config current-context)
-  #         echo "environment-kubeconfig:" ${KUBECONFIG}
+  kind:
+    name: Kind-Kubernetes Cluster interaction
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Create k8s Kind Cluster
+        uses: helm/kind-action@v1.4.0
+      - name: Await cluster up and running
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "kube-system" # default
+          timeout: 300
+          max-restarts: 5
+      - name: Testing
+        run: |
+          kubectl cluster-info
+          kubectl get namespace
+          kubectl get pods --all-namespaces
+          echo "current-context:" $(kubectl config current-context)
+          echo "environment-kubeconfig:" ${KUBECONFIG}
+          kubectl cluster-info dump
