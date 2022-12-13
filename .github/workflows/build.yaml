@@ -34,6 +34,7 @@ jobs:
           kubectl get pods --all-namespaces
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
+          kubectl cluster-info dump
 
   minikube:
     name: Minikube-Kubernetes Cluster interaction
@@ -68,6 +69,7 @@ jobs:
           kubectl get pods --all-namespaces
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
+          kubectl cluster-info dump
 
   # kind:
   #   name: Kind-Kubernetes Cluster interaction
