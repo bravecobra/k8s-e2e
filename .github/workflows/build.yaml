@@ -1,0 +1,92 @@
+name: "Create cluster using KinD"
+on: [push]
+
+jobs:
+  k3s:
+    name: K3S-Kubernetes Cluster interaction
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: nolar/setup-k3d-k3s@v1
+        with:
+          version: v1.25.4+k3s1  # E.g.: v1.21, v1.21.2, v1.21.2+k3s1
+          # metrics-enabled: false
+          # traefik-enabled: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Await cluster up and running
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "kube-system" # default
+          timeout: 300
+          max-restarts: 5
+      - name: Await cluster up and running
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "kube-public" # default
+          timeout: 300
+          max-restarts: 5
+      - name: Testing
+        run: |
+          kubectl cluster-info
+          kubectl get namespace
+          kubectl get pods --all-namespaces
+          echo "current-context:" $(kubectl config current-context)
+          echo "environment-kubeconfig:" ${KUBECONFIG}
+          kubectl cluster-info dump
+
+  minikube:
+    name: Minikube-Kubernetes Cluster interaction
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Minikube
+        uses: manusa/actions-setup-minikube@v2.7.1
+        with:
+          minikube version: 'v1.26.1'
+          kubernetes version: 'v1.25.0'
+          github token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Await cluster up and running
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "kube-system" # default
+          timeout: 300
+          max-restarts: 5
+      - name: Await cluster up and running
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "kube-public" # default
+          timeout: 300
+          max-restarts: 5
+      - name: Testing
+        run: |
+          kubectl cluster-info
+          kubectl get namespace
+          kubectl get pods --all-namespaces
+          echo "current-context:" $(kubectl config current-context)
+          echo "environment-kubeconfig:" ${KUBECONFIG}
+          kubectl cluster-info dump
+
+  # kind:
+  #   name: Kind-Kubernetes Cluster interaction
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@master
+  #     - uses: engineerd/setup-kind@v0.5.0
+  #     - name: Await workload
+  #       uses: jupyterhub/action-k8s-await-workloads@v1
+  #       with:
+  #         workloads: "" # all
+  #         namespace: "" # default
+  #         timeout: 60
+  #         max-restarts: 0
+  #     - name: Testing
+  #       run: |
+  #         kubectl cluster-info
+  #         kubectl get pods -n kube-system
+  #         echo "current-context:" $(kubectl config current-context)
+  #         echo "environment-kubeconfig:" ${KUBECONFIG}
