@@ -1,0 +1,4 @@
+resources:
+- whoami-deployment.yaml
+- whoami-service.yaml
+- whoami-ingress.yaml
