@@ -74,7 +74,7 @@ jobs:
           helm repo add traefik https://helm.traefik.io/traefik
           helm repo update
           kubectl create namespace traefik
-          helm install traefik traefik/traefik -n traefik -f traefik-${{ matrix.cluster }}-values.yaml
+          helm install traefik traefik/traefik -n traefik -f ./traefik/traefik-${{ matrix.cluster }}-values.yaml
 
       - name: Await deployment traefik
         uses: jupyterhub/action-k8s-await-workloads@v1
