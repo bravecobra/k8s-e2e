@@ -70,3 +70,8 @@ jobs:
         if: always()
         with:
           namespace: traefik
+
+      - name: HTTP Call into cluster
+        run: |
+          response = $(curl http://k8s.local)
+          echo "response from curl= $response"
