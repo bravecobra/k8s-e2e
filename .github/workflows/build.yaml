@@ -34,6 +34,9 @@ jobs:
       - name: Setup Kind Cluster
         if: ${{ matrix.cluster == 'kind' }}
         uses: helm/kind-action@v1.4.0
+        with:
+          cluster_name: kind-devinfra
+          config: kind-config.yaml
 
       - name: Await cluster up and running
         uses: jupyterhub/action-k8s-await-workloads@v1
