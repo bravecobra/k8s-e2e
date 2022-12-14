@@ -2,7 +2,7 @@ name: "Create clusters"
 on: [push]
 
 jobs:
-  clusterTest:
+  ClusterSetup:
     strategy:
       matrix:
         cluster: [k3s] #kind, k3s, minikube
@@ -51,6 +51,10 @@ jobs:
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
 
+  Installing:
+    runs-on: ubuntu-latest
+    needs: [ClusterSetup]
+    steps:
       - name: Installing traefik
         run: |
           helm repo add traefik https://helm.traefik.io/traefik
@@ -62,6 +66,13 @@ jobs:
         run: |
           kubectl apply -k ./whoami
 
+      - name: Await deployment default
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "default" # default
+          timeout: 300
+          max-restarts: 0
       - name: Await deployment traefik
         uses: jupyterhub/action-k8s-await-workloads@v1
         with:
@@ -75,7 +86,16 @@ jobs:
         if: always()
         with:
           namespace: traefik
+      - name: Kubernetes namespace report (default)
+        uses: jupyterhub/action-k8s-namespace-report@v1
+        if: always()
+        with:
+          namespace: default
 
+  Verify:
+    runs-on: ubuntu-latest
+    needs: [Installing]
+    steps:
       - name: "Call whoami.local"
         id: call
         uses: indiesdev/curl@v1.1
