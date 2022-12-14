@@ -5,7 +5,7 @@ jobs:
   cluster:
     strategy:
       matrix:
-        cluster: [kind] # kind, k3s, minikube
+        cluster: [minikube] # kind, k3s, minikube
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
