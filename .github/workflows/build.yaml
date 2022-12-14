@@ -90,15 +90,11 @@ jobs:
         with:
           namespace: traefik
 
-      - name: cluster-info dump
-        run: |
-          kubectl cluster-info dump
-
       - name: "Call whoami.local"
         id: call
         uses: indiesdev/curl@v1.1
         with:
           url: http://whoami.local
-          accept: 200,404
+          accept: 200
       - name: "Use response"
         run: echo ${{ steps.call.outputs.response }}
