@@ -51,24 +51,9 @@ jobs:
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
 
-      - name: Installing traefik
-        run: |
-          helm repo add traefik https://helm.traefik.io/traefik
-          helm repo update
-          kubectl create namespace traefik
-          helm install traefik traefik/traefik -n traefik -f traefik-${{ matrix.cluster }}-values.yaml
-
       - name: Installing whoami
         run: |
           kubectl apply -k ./whoami
-
-      - name: Await deployment traefik
-        uses: jupyterhub/action-k8s-await-workloads@v1
-        with:
-          workloads: "" # all
-          namespace: "traefik" # default
-          timeout: 300
-          max-restarts: 0
 
       - name: Await deployment default
         uses: jupyterhub/action-k8s-await-workloads@v1
@@ -83,6 +68,21 @@ jobs:
         if: always()
         with:
           namespace: default
+
+      - name: Installing traefik
+        run: |
+          helm repo add traefik https://helm.traefik.io/traefik
+          helm repo update
+          kubectl create namespace traefik
+          helm install traefik traefik/traefik -n traefik -f traefik-${{ matrix.cluster }}-values.yaml
+
+      - name: Await deployment traefik
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "traefik" # default
+          timeout: 300
+          max-restarts: 0
 
       - name: Kubernetes namespace report (traefik)
         uses: jupyterhub/action-k8s-namespace-report@v1
