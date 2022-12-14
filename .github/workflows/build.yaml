@@ -5,7 +5,7 @@ jobs:
   clusterTest:
     strategy:
       matrix:
-        cluster: [kind] #, k3s, minikube
+        cluster: [kind, k3s] #, minikube
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -15,8 +15,7 @@ jobs:
         if: ${{ matrix.cluster == 'k3s' }}
         with:
           version: v1.25.4+k3s1  # E.g.: v1.21, v1.21.2, v1.21.2+k3s1
-          metrics-enabled: false
-          traefik-enabled: false
+          k3d-args: --k3s-arg "--disable=traefik@server:0"
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Minikube Cluster
@@ -52,7 +51,7 @@ jobs:
           helm repo add traefik https://helm.traefik.io/traefik
           helm repo update
           kubectl create namespace traefik
-          helm install traefik traefik/traefik -n traefik --wait
+          helm install traefik traefik/traefik -n traefik
 
       - name: Await deployment traefik
         uses: jupyterhub/action-k8s-await-workloads@v1
