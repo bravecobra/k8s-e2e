@@ -2,34 +2,48 @@ name: "Create clusters"
 on: [push]
 
 jobs:
-  clusterTest:
+  cluster:
     strategy:
       matrix:
-        cluster: [kind, k3s, minikube]
+        cluster: [kind, k3s] #minikube
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+
+      - name: Add hosts to /etc/hosts
+        if: ${{ matrix.cluster != 'minikube' }}
+        run: |
+          sudo echo "127.0.0.1 k8s.local" | sudo tee -a /etc/hosts
+          sudo echo "127.0.0.1 whoami.local" | sudo tee -a /etc/hosts
 
       - name: Setup K3S Cluster
         uses: nolar/setup-k3d-k3s@v1
         if: ${{ matrix.cluster == 'k3s' }}
         with:
           version: v1.25.4+k3s1  # E.g.: v1.21, v1.21.2, v1.21.2+k3s1
-          metrics-enabled: false
-          traefik-enabled: false
+          k3d-args: '--config=k3s-devinfra.yaml'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Minikube Cluster
-        if: ${{ matrix.cluster == 'minikube' }}
-        uses: manusa/actions-setup-minikube@v2.7.1
-        with:
-          minikube version: 'v1.26.1'
-          kubernetes version: 'v1.25.0'
-          github token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Setup Minikube Cluster
+      #   if: ${{ matrix.cluster == 'minikube' }}
+      #   uses: manusa/actions-setup-minikube@v2.7.1
+      #   with:
+      #     minikube version: 'v1.26.1'
+      #     kubernetes version: 'v1.25.0'
+      #     github token: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Add hosts to /etc/hosts for minikube ip
+      #   if: ${{ matrix.cluster == 'minikube' }}
+      #   run: |
+      #     sudo echo "$(minikube ip) k8s.local" | sudo tee -a /etc/hosts
+      #     sudo echo "$(minikube ip) whoami.local" | sudo tee -a /etc/hosts
 
       - name: Setup Kind Cluster
         if: ${{ matrix.cluster == 'kind' }}
         uses: helm/kind-action@v1.4.0
+        with:
+          cluster_name: kind-devinfra
+          config: kind-config.yaml
 
       - name: Await cluster up and running
         uses: jupyterhub/action-k8s-await-workloads@v1
@@ -39,7 +53,7 @@ jobs:
           timeout: 300
           max-restarts: 5
 
-      - name: Testing
+      - name: Testing connectivity
         run: |
           kubectl cluster-info
           kubectl get namespace
@@ -48,3 +62,58 @@ jobs:
           echo "environment-kubeconfig:" ${KUBECONFIG}
           kubectl cluster-info dump
 
+      - name: Installing whoami
+        run: |
+          kubectl apply -k ./whoami
+
+      - name: Await deployment default
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "default" # default
+          timeout: 300
+          max-restarts: 0
+
+      - name: Kubernetes namespace report (default)
+        uses: jupyterhub/action-k8s-namespace-report@v1
+        if: always()
+        with:
+          namespace: default
+
+      - name: Installing traefik
+        run: |
+          helm repo add traefik https://helm.traefik.io/traefik
+          helm repo update
+          kubectl create namespace traefik
+          helm install traefik traefik/traefik -n traefik -f ./traefik/traefik-${{ matrix.cluster }}-values.yaml
+
+      - name: Await deployment traefik
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "traefik" # default
+          timeout: 300
+          max-restarts: 0
+
+      - name: Kubernetes namespace report (traefik)
+        uses: jupyterhub/action-k8s-namespace-report@v1
+        if: always()
+        with:
+          namespace: traefik
+
+      # - name: Test service URLs
+      #   if: ${{ matrix.cluster == 'minikube' }}
+      #   run: |
+      #     minikube service list
+      #     minikube service traefik -n traefik --url
+      #     echo "------------------opening the service------------------"
+      #     curl $(minikube service traefik -n traefik --url)
+
+      - name: "Call whoami.local"
+        id: call
+        uses: indiesdev/curl@v1.1
+        with:
+          url: http://whoami.local
+          accept: 200
+      - name: "Use response"
+        run: echo ${{ steps.call.outputs.response }}
