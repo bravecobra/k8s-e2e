@@ -6,7 +6,7 @@ jobs:
     strategy:
       matrix:
         cluster: [kind, k3s, minikube]
-    name: K3S-Kubernetes Cluster interaction
+    name: "${{ matrix.job_name }}-Kubernetes Cluster interaction"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
