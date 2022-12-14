@@ -48,3 +48,9 @@ jobs:
           echo "environment-kubeconfig:" ${KUBECONFIG}
           kubectl cluster-info dump
 
+      - name: Installing traefik
+        run: |
+          helm repo add traefik https://helm.traefik.io/traefik
+          helm repo update
+          kubectl create namespace traefik
+          helm install traefik traefik/traefik --namespace=traefik
