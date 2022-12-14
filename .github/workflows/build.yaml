@@ -92,7 +92,6 @@ jobs:
 
       - name: cluster-info dump
         run: |
-          sleep 10000
           kubectl cluster-info dump
 
       - name: "Call whoami.local"
