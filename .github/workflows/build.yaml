@@ -39,18 +39,31 @@ jobs:
           timeout: 300
           max-restarts: 5
 
-      - name: Testing
+      - name: Testing connectivity
         run: |
           kubectl cluster-info
           kubectl get namespace
           kubectl get pods --all-namespaces
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
-          kubectl cluster-info dump
 
       - name: Installing traefik
         run: |
           helm repo add traefik https://helm.traefik.io/traefik
           helm repo update
           kubectl create namespace traefik
-          helm install traefik traefik/traefik -n traefik
+          helm install traefik traefik/traefik -n traefik --wait
+
+      - name: Await deployment traefik
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          workloads: "" # all
+          namespace: "traefik" # default
+          timeout: 300
+          max-restarts: 0
+
+      - name: Kubernetes namespace report (traefik)
+        uses: jupyterhub/action-k8s-namespace-report@v1
+        if: always()
+        with:
+          namespace: traefik
