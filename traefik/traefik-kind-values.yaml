@@ -4,7 +4,7 @@ additionalArguments:
   - "--serversTransport.insecureSkipVerify=true"
   - "--providers.kubernetesingress=true"
   - "--providers.kubernetesingress.ingressendpoint"
-  - "--providers.kubernetesingress.ingressendpoint.ip=172.18.0.6"
+  - "--providers.kubernetesingress.ingressendpoint.ip=172.18.0.2"
 
 deployment:
   labels:
@@ -56,7 +56,5 @@ service:
   type: ClusterIP
   spec:
   externalIPs: [
-    172.18.0.2,
-    172.18.0.3,
-    172.18.0.4
+    172.18.0.2
   ]

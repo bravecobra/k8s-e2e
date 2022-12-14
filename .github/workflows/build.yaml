@@ -5,7 +5,7 @@ jobs:
   cluster:
     strategy:
       matrix:
-        cluster: [k3s] #kind, k3s, minikube
+        cluster: [kind] # kind, k3s, minikube
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -50,6 +50,7 @@ jobs:
           kubectl get pods --all-namespaces
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
+          kubectl cluster-info dump
 
       - name: Installing whoami
         run: |
