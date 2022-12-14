@@ -10,6 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
+      - name: Add hosts to /etc/hosts
+        run: |
+            sudo echo "127.0.0.1 k8s.local" | sudo tee -a /etc/hosts
+
       - name: Setup K3S Cluster
         uses: nolar/setup-k3d-k3s@v1
         if: ${{ matrix.cluster == 'k3s' }}
