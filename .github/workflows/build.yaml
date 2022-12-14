@@ -78,7 +78,11 @@ jobs:
         with:
           namespace: traefik
 
-      - name: "Call API"
+      - name: "Call k8s.local"
+        id: call
         uses: indiesdev/curl@v1.1
         with:
           url: http://k8s.local
+          accept: 404
+      - name: "Use response"
+        run: echo ${{ steps.call.outputs.response }}
