@@ -5,7 +5,7 @@ jobs:
   cluster:
     strategy:
       matrix:
-        cluster: [kind, k3s, minikube]
+        cluster: [kind, k3s] #minikube
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -24,19 +24,19 @@ jobs:
           k3d-args: '--config=k3s-devinfra.yaml'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Minikube Cluster
-        if: ${{ matrix.cluster == 'minikube' }}
-        uses: manusa/actions-setup-minikube@v2.7.1
-        with:
-          minikube version: 'v1.26.1'
-          kubernetes version: 'v1.25.0'
-          github token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Setup Minikube Cluster
+      #   if: ${{ matrix.cluster == 'minikube' }}
+      #   uses: manusa/actions-setup-minikube@v2.7.1
+      #   with:
+      #     minikube version: 'v1.26.1'
+      #     kubernetes version: 'v1.25.0'
+      #     github token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Add hosts to /etc/hosts for minikube ip
-        if: ${{ matrix.cluster == 'minikube' }}
-        run: |
-          sudo echo "$(minikube ip) k8s.local" | sudo tee -a /etc/hosts
-          sudo echo "$(minikube ip) whoami.local" | sudo tee -a /etc/hosts
+      # - name: Add hosts to /etc/hosts for minikube ip
+      #   if: ${{ matrix.cluster == 'minikube' }}
+      #   run: |
+      #     sudo echo "$(minikube ip) k8s.local" | sudo tee -a /etc/hosts
+      #     sudo echo "$(minikube ip) whoami.local" | sudo tee -a /etc/hosts
 
       - name: Setup Kind Cluster
         if: ${{ matrix.cluster == 'kind' }}
@@ -110,12 +110,10 @@ jobs:
       #     curl $(minikube service traefik -n traefik --url)
 
       - name: "Call whoami.local"
-        # if: ${{ matrix.cluster != 'minikube' }}
         id: call
         uses: indiesdev/curl@v1.1
         with:
           url: http://whoami.local
           accept: 200
       - name: "Use response"
-        # if: ${{ matrix.cluster != 'minikube' }}
         run: echo ${{ steps.call.outputs.response }}
