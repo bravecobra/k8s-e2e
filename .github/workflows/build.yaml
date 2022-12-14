@@ -101,13 +101,13 @@ jobs:
         with:
           namespace: traefik
 
-      - name: Test service URLs
-        if: ${{ matrix.cluster == 'minikube' }}
-        run: |
-          minikube service list
-          minikube service traefik -n traefik --url
-          echo "------------------opening the service------------------"
-          curl $(minikube service traefik -n traefik --url)
+      # - name: Test service URLs
+      #   if: ${{ matrix.cluster == 'minikube' }}
+      #   run: |
+      #     minikube service list
+      #     minikube service traefik -n traefik --url
+      #     echo "------------------opening the service------------------"
+      #     curl $(minikube service traefik -n traefik --url)
 
       - name: "Call whoami.local"
         # if: ${{ matrix.cluster != 'minikube' }}
