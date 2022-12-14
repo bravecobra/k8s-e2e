@@ -1,0 +1,62 @@
+# Override of: https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
+
+additionalArguments:
+  - "--serversTransport.insecureSkipVerify=true"
+  - "--providers.kubernetesingress=true"
+  - "--providers.kubernetesingress.ingressendpoint"
+  - "--providers.kubernetesingress.ingressendpoint.ip=172.18.0.6"
+
+deployment:
+  labels:
+    app: traefik
+  podLabels:
+    app: traefik
+logs:
+  access:
+    enabled: true
+    format: json
+  general:
+    format: json
+    level: INFO
+
+kubernetes:
+  namespaces:
+    - default
+    - kube-system
+
+ports:
+  traefik:
+    port: 9999
+    expose: false
+    exposedPort: 9999
+    protocol: TCP
+
+ingressClass:
+#   # true is not unit-testable yet, pending https://github.com/rancher/helm-unittest/pull/12
+  enabled: true
+  isDefaultClass: true
+#   # Use to force a networking.k8s.io API Version for certain CI/CD applications. E.g. "v1beta1"
+  fallbackApiVersion: "v1beta1"
+
+ingressRoute:
+  dashboard:
+    enabled: true
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web
+providers:
+  kubernetesCRD:
+    enabled: true
+    namespaces: []
+  kubernetesIngress:
+    enabled: true
+    namespaces: []
+
+service:
+  enabled: true
+  type: ClusterIP
+  spec:
+  externalIPs: [
+    172.19.0.2
+    172.19.0.3,
+    172.19.0.4
+  ]

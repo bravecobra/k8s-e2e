@@ -55,7 +55,7 @@ jobs:
           helm repo add traefik https://helm.traefik.io/traefik
           helm repo update
           kubectl create namespace traefik
-          helm install traefik traefik/traefik -n traefik
+          helm install traefik traefik/traefik -n traefik -f traefik-values.yaml
 
       - name: Await deployment traefik
         uses: jupyterhub/action-k8s-await-workloads@v1
@@ -71,7 +71,7 @@ jobs:
         with:
           namespace: traefik
 
-      - name: HTTP Call into cluster
-        run: |
-          response = $(curl http://k8s.local)
-          echo "response from curl= $response"
+      - name: curl
+        uses: wei/curl@master
+        with:
+          args: http://k8s.local
