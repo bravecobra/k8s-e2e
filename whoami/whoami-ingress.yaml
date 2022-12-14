@@ -13,5 +13,7 @@ spec:
       - path: /
         pathType: Prefix
         backend:
-          serviceName: whoami-service
-          servicePort: http
+          service:
+            name: whoami-service
+            port:
+              number: 80
