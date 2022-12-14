@@ -98,16 +98,17 @@ jobs:
         if: ${{ matrix.cluster == 'minikube' }}
         run: |
           minikube service list
-          minikube service whoami --url
+          minikube service traefik --url
           echo "------------------opening the service------------------"
-          curl $(minikube service whoami --url)
-
+          curl $(minikube service traefik --url)
 
       - name: "Call whoami.local"
+        if: ${{ matrix.cluster != 'minikube' }}
         id: call
         uses: indiesdev/curl@v1.1
         with:
           url: http://whoami.local
           accept: 200
       - name: "Use response"
+        if: ${{ matrix.cluster != 'minikube' }}
         run: echo ${{ steps.call.outputs.response }}
