@@ -6,12 +6,12 @@ jobs:
     strategy:
       matrix:
         cluster: [kind, k3s, minikube]
-    # name: "${{ matrix.cluster }}-Kubernetes Cluster interaction"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
 
-      - uses: nolar/setup-k3d-k3s@v1
+      - name: Setup K3S Cluster
+        uses: nolar/setup-k3d-k3s@v1
         if: ${{ matrix.cluster == 'k3s' }}
         with:
           version: v1.25.4+k3s1  # E.g.: v1.21, v1.21.2, v1.21.2+k3s1
@@ -19,7 +19,7 @@ jobs:
           traefik-enabled: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Minikube
+      - name: Setup Minikube Cluster
         if: ${{ matrix.cluster == 'minikube' }}
         uses: manusa/actions-setup-minikube@v2.7.1
         with:
@@ -27,7 +27,7 @@ jobs:
           kubernetes version: 'v1.25.0'
           github token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create k8s Kind Cluster
+      - name: Setup Kind Cluster
         if: ${{ matrix.cluster == 'kind' }}
         uses: helm/kind-action@v1.4.0
 
@@ -38,6 +38,7 @@ jobs:
           namespace: "kube-system" # default
           timeout: 300
           max-restarts: 5
+
       - name: Testing
         run: |
           kubectl cluster-info
