@@ -90,6 +90,11 @@ jobs:
         with:
           namespace: traefik
 
+      - name: cluster-info dump
+        run: |
+          sleep 10000
+          kubectl cluster-info dump
+
       - name: "Call whoami.local"
         id: call
         uses: indiesdev/curl@v1.1
