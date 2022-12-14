@@ -7,6 +7,7 @@ additionalArguments:
   - "--providers.kubernetesingress.ingressendpoint.ip=172.18.0.2"
 
 deployment:
+  kind: DaemonSet
   labels:
     app: traefik
   podLabels:
@@ -53,7 +54,7 @@ providers:
 
 service:
   enabled: true
-  type: NodePort
+  type: ClusterIP
   spec:
   externalIPs: [
     172.18.0.2
