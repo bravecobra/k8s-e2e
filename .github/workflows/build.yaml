@@ -55,14 +55,6 @@ jobs:
           echo "environment-kubeconfig:" ${KUBECONFIG}
           kubectl cluster-info dump
 
-      - name: Test service URLs
-        if: ${{ matrix.cluster == 'minikube' }}
-        run: |
-          minikube service list
-          minikube service whoami --url
-          echo "------------------opening the service------------------"
-          curl $(minikube service whoami --url)
-
       - name: Installing whoami
         run: |
           kubectl apply -k ./whoami
@@ -101,6 +93,15 @@ jobs:
         if: always()
         with:
           namespace: traefik
+
+      - name: Test service URLs
+        if: ${{ matrix.cluster == 'minikube' }}
+        run: |
+          minikube service list
+          minikube service whoami --url
+          echo "------------------opening the service------------------"
+          curl $(minikube service whoami --url)
+
 
       - name: "Call whoami.local"
         id: call
