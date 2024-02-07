@@ -46,7 +46,7 @@ jobs:
           config: kind-config.yaml
 
       - name: Await cluster up and running
-        uses: jupyterhub/action-k8s-await-workloads@v2
+        uses: jupyterhub/action-k8s-await-workloads@v3
         with:
           workloads: "" # all
           namespace: "kube-system" # default
@@ -67,7 +67,7 @@ jobs:
           kubectl apply -k ./whoami
 
       - name: Await deployment default
-        uses: jupyterhub/action-k8s-await-workloads@v2
+        uses: jupyterhub/action-k8s-await-workloads@v3
         with:
           workloads: "" # all
           namespace: "default" # default
@@ -88,7 +88,7 @@ jobs:
           helm install traefik traefik/traefik -n traefik -f ./traefik/traefik-${{ matrix.cluster }}-values.yaml
 
       - name: Await deployment traefik
-        uses: jupyterhub/action-k8s-await-workloads@v2
+        uses: jupyterhub/action-k8s-await-workloads@v3
         with:
           workloads: "" # all
           namespace: "traefik" # default
